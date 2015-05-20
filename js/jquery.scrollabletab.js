@@ -119,19 +119,17 @@ TODO:
                 //See if nav needed
                 _showNavsIfNeeded();
                 //Adjust the left position of all tabs
-                _adjustLeftPosition();
+                _adjustLeftPosition().done(function () {
+                    // Scroll if needed after position adjusted
+                    _scrollIfNeeded();
+                });
                 //Add events to the navigation buttons
                 _addNavEvents();
                 //If tab is selected manually by user than also change the css class
                 $tabs.bind("tabsshow tabsactivate", function (event, ui) { // support for new and deprecated version
                     _updateCurrentTab(ui.tab ? $(ui.tab).parents('li') : ui.newTab); // support for new and deprecated version
                     //Scroll if needed
-                    if (_isHiddenOn('n')) {
-                        _animateTabTo('n', null, null, event)
-                    }
-                    else if (_isHiddenOn('p')) {
-                        _animateTabTo('p', null, null, event)
-                    }
+                    _scrollIfNeeded();
                     //else do nothing, tab is visible so no need to scroll tab
                 })
                 .bind("tabsadd", function (event, ui) { // Deprecated in 1.11+
@@ -191,16 +189,22 @@ TODO:
                             //See if nav needed
                             _showNavsIfNeeded();
                             //Adjust the left position of all tabs
-                            _adjustLeftPosition();
-                            //Scroll if needed
-                            if (_isHiddenOn('n', $curSelectedTab)) {
-                                _animateTabTo('n', $curSelectedTab, null, event)
-                            }
-                            else if (_isHiddenOn('p', $curSelectedTab)) {
-                                _animateTabTo('p', $curSelectedTab, null, event)
-                            }
+                            _adjustLeftPosition().done(function () {
+                                // Scroll if needed after position adjusted
+                                _scrollIfNeeded();
+                            });
                         }, o.responsiveLayoutInterval);
                     });
+                }
+            }
+
+            // Scroll the tabs if needed
+            function _scrollIfNeeded() {
+                if (_isHiddenOn('n', $curSelectedTab)) {
+                    _animateTabTo('n', $curSelectedTab, null, event)
+                }
+                else if (_isHiddenOn('p', $curSelectedTab)) {
+                    _animateTabTo('p', $curSelectedTab, null, event)
                 }
             }
 
@@ -462,10 +466,16 @@ TODO:
                 return single ? w / 2 : w;
             }
 
+            // - returns DEFERRED after animation is completed
             function _adjustLeftPosition($li) {
                 //If li is provided, find the left and width of second last (last is the new tab) tab and assign it to the new tab
+                var def = new $.Deferred();
                 if ($li) {
-                    if ($lis.lenght == 1) return;
+                    if ($lis.lenght == 1) {
+                        def.resolve();
+                        return;
+                    }
+
                     var $thisPrev = $li.prev('li') || $lis.first(),
                         newLeft = parseFloat($thisPrev.css('left'));
                     newLeft = isNaN(newLeft) ? 0 : newLeft;
@@ -475,6 +485,8 @@ TODO:
                         'left': newLeft,
                         'margin-left': $thisPrev.css('margin-left')
                     });
+
+                    def.resolve();
                     return;
                 }
 
@@ -486,7 +498,9 @@ TODO:
                 var tw = leftPush;
 
                 //Take left margin if any
-                var leftMargin = parseFloat($lis.last().prev('li').css('margin-left'));
+                var leftMargin = parseFloat($lis.last().prev('li').css('margin-left')),
+                    counter = 0,
+                    count = $ul.find('li:not(:first)').length;
 
                 //Detect if all elements fits in to page (e.g. after page size changed)
                 if (_liWidth() <= $ul.width()) {
@@ -496,10 +510,28 @@ TODO:
                 $lis.stop(true, true).css('margin-left', 0);
                 $ul.find('li:not(:first)').each(function () {
                     //Apply the css
-                    $(this).stop(true, true)[o.animateTabs ? 'animate' : 'css']({ 'left': tw += $(this).prev('li').outerWidth(true) + o.tabsSeparation })
+                    if (o.animateTabs) {
+                        $(this).stop(true, true);
+                        $(this).animate({ 'left': tw += $(this).prev('li').outerWidth(true) + o.tabsSeparation },
+                            o.scrollSpeed,
+                            o.easing,
+                            function () {
+                                counter++;
+                                if (counter === count) {
+                                    def.resolve(); // all tabs animation completed
+                                }
+                            });
+                    } else {
+                        $(this).css({ 'left': tw += $(this).prev('li').outerWidth(true) + o.tabsSeparation });
+                    }
                 });
 
+                if (!o.animateTabs) {
+                    def.resolve(); // no animation applied
+                }
+
                 $lis.css('margin-left', leftMargin);
+                return def;
             }
 
             function _liWidth($tab) {
