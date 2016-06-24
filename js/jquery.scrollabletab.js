@@ -74,6 +74,14 @@ TODO:
                 $curSelectedTab = $ul.find('.ui-tabs-selected,.ui-tabs-active').first().addClass('stCurrentTab'), //We will use our own css class to detect a selected tab because we might want to scroll without tab being selected
                 $responsiveTimeout = undefined;
 
+            // Prevent multiple initialization
+            if($(this).hasClass("scrollable-tabs-active")){
+                window.console.log("Scroll tabs already activated");
+                return;
+            }
+
+            $(this).addClass("scrollable-tabs-active");
+
             //Navigation
             if (!o.hideDefaultArrows) {
                 var $navPrev = $('<li class="stNavPrevArrow ui-state-active" title="Previous"><span class="ui-icon ' + o.navPrevIconClass + '">Previous tab</span></li>'),
