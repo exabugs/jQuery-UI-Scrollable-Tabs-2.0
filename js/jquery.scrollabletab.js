@@ -243,8 +243,11 @@ TODO:
                 $tab = $tab || $curSelectedTab;
                 if (side == 'n') {
                     var rightPos = $tab[0].offsetLeft + $tab.outerWidth(),
+                        innerWidth = $ul.outerWidth() - _getNavPairWidth(),
+                        lastLiEnd = $lis.last()[0].offsetLeft + $lis.last().outerWidth(),
                         innerWidth = $ul.outerWidth() - _getNavPairWidth();
-                    return (rightPos > innerWidth);
+
+                    return (rightPos > innerWidth) || (lastLiEnd < innerWidth);
                 }
                 else//side='p'
                 {
