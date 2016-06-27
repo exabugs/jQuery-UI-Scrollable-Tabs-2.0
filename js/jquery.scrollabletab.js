@@ -52,7 +52,7 @@ TODO:
         'resizable': false, //Alow resizing the tabs container
         'resizeHandles': 'e,s,se', //Resizable in North, East and NorthEast directions
         'responsiveLayout': true, //Auto resize tabs content, add navigation if needed after window resized
-        'responsiveLayoutInterval': 125, //Auto resize reponse interval. For slow or rich clients, set to higher value
+        'responsiveLayoutInterval': 501, //Auto resize reponse interval. For slow or rich clients, set to higher value ! Must be higher that scroll speed if responsive layout
         'scrollSpeed': 500, //The speed in which the tabs will animate/scroll
         'selectTabOnAdd': true,
         'selectTabAfterScroll': true,
