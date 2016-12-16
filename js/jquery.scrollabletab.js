@@ -208,10 +208,10 @@ TODO:
             // Scroll the tabs if needed
             function _scrollIfNeeded() {
                 if (_isHiddenOn('n', $curSelectedTab)) {
-                    _animateTabTo('n', $curSelectedTab, null, event)
+                    _animateTabTo('n', $curSelectedTab, null, null)
                 }
                 else if (_isHiddenOn('p', $curSelectedTab)) {
-                    _animateTabTo('p', $curSelectedTab, null, event)
+                    _animateTabTo('p', $curSelectedTab, null, null)
                 }
             }
 
