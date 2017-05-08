@@ -86,7 +86,7 @@ TODO:
                 var $navPrev = $('<li class="stNavPrevArrow ui-state-active" title="Previous"><span class="ui-icon ' + o.navPrevIconClass + '">Previous tab</span></li>'),
 					$navNext = $('<li class="stNavNextArrow ui-state-active" title="Next"><span class="ui-icon ' + o.navNextIconClass + '">Next tab</span></li>'),
 					$navFirst = o.showFirstLastArrows ? $('<li class="stNavFirstArrow ui-state-active" title="First"><span class="ui-icon ' + o.navFirstIconClass + '">First tab</span></li>') : $(),
-					$navLast = o.showFirstLastArrows ? $('<li class="stNavLastArrow ui-state-active" title="Last"><span class="ui-icon ' + o.navEndIconClass + '">Last tab</span></li>') : $();
+					$navLast = o.showFirstLastArrows ? $('<li class="stNavLastArrow ui-state-active" title="Last"><span class="ui-icon ' + o.navLastIconClass + '">Last tab</span></li>') : $();
                 //Append elements to the container
                 $arrowsNav.append($navPrev, $navFirst, $navLast, $navNext);
                 var $navLis = $arrowsNav.find('li').hover(function () { $(this).toggleClass('ui-state-active').toggleClass('ui-state-hover'); });
@@ -133,8 +133,8 @@ TODO:
                 //Add events to the navigation buttons
                 _addNavEvents();
                 //If tab is selected manually by user than also change the css class
-                $tabs.bind("tabsshow tabsactivate", function (event, ui) { // support for new and deprecated version
-                    _updateCurrentTab(ui.tab ? $(ui.tab).parents('li') : ui.newTab); // support for new and deprecated version
+                $tabs.bind("tabsactivate", function (event, ui) {
+                    _updateCurrentTab(ui.newTab);
                     //Scroll if needed
                     _scrollIfNeeded();
                     //else do nothing, tab is visible so no need to scroll tab
@@ -153,7 +153,7 @@ TODO:
                     _adjustLeftPosition();
                     //Check if select on add
                     if (o.selectTabOnAdd) {
-                        $(this).tabs('select', $lis.index($thisLi));
+                        $(this).tabs({ active: $lis.index($thisLi) });
                     }
                 })
                 .bind("tabsremove", function (event, ui) { // Deprecated in 1.11+
@@ -292,7 +292,7 @@ TODO:
                 }
 
                 if (o.selectTabAfterScroll && tabIndex !== null) {
-                    $tabs.tabs('select', tabIndex);
+                    $tabs.tabs({ active: tabIndex });
                 }
                 else {
                     //Update current tab
@@ -356,8 +356,9 @@ TODO:
                         _animateTabTo('n', $nxtLi, indexNextTab, e);
                     }
                     else {
-                        $tabs.tabs('select', indexNextTab);
+                        $tabs.tabs({ active: indexNextTab });
                     }
+                    return false;
                 })
 
                 //Handle previous tab
@@ -396,7 +397,7 @@ TODO:
                         _animateTabTo('p', $prvLi, indexPrevTab, e);
                     }
                     else {
-                        $tabs.tabs('select', indexPrevTab);
+                        $tabs.tabs({ active: indexPrevTab });
                     }
                     return false;
                 });
